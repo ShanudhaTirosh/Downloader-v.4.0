@@ -1,0 +1,1495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#667eea">
+    <meta name="description" content="Professional social media downloader with quality selection. Download videos and audio from YouTube, TikTok, Instagram, Twitter, Facebook and more.">
+    <meta name="keywords" content="video downloader, audio downloader, youtube downloader, tiktok downloader, instagram downloader">
+    <meta name="author" content="Media Downloader Pro v4.0">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='grad1' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%23667eea;stop-opacity:1' /%3E%3Cstop offset='100%25' style='stop-color:%23764ba2;stop-opacity:1' /%3E%3C/linearGradient%3E%3C/defs%3E%3Ccircle cx='50' cy='50' r='48' fill='url(%23grad1)'/%3E%3Cpath d='M 50 25 L 50 55' stroke='white' stroke-width='6' stroke-linecap='round'/%3E%3Cpath d='M 35 45 L 50 60 L 65 45' stroke='white' stroke-width='6' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3Cpath d='M 30 70 L 70 70' stroke='white' stroke-width='6' stroke-linecap='round'/%3E%3C/svg%3E">
+    
+    <title>Media Downloader Pro v4.0 - Download Videos & Audio</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #667eea;
+            --secondary: #764ba2;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+            
+            /* Light mode */
+            --bg-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --bg-card: rgba(255, 255, 255, 0.95);
+            --bg-option: #f8f9fa;
+            --text-primary: #1f2937;
+            --text-secondary: #6b7280;
+            --border-color: #e5e7eb;
+            --shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            --bg-card: rgba(30, 30, 46, 0.95);
+            --bg-option: #2a2a3e;
+            --text-primary: #e5e7eb;
+            --text-secondary: #9ca3af;
+            --border-color: #374151;
+            --shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: var(--bg-primary);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 10px;
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+        }
+
+        .main-container {
+            max-width: 900px;
+            margin: 20px auto;
+            padding-bottom: 80px;
+        }
+
+        .header-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 0 10px;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .theme-toggle, .history-btn {
+            background: var(--bg-card);
+            border: 2px solid var(--border-color);
+            border-radius: 50px;
+            padding: 8px 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            color: var(--text-primary);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .theme-toggle:hover, .history-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+        }
+
+        .theme-toggle i {
+            font-size: 1.2rem;
+        }
+
+        .stats-badge {
+            background: var(--bg-card);
+            border: 2px solid var(--border-color);
+            border-radius: 50px;
+            padding: 8px 16px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        /* History Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+            z-index: 9999;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: var(--bg-card);
+            border-radius: 20px;
+            max-width: 800px;
+            width: 100%;
+            max-height: 80vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-header {
+            padding: 25px;
+            border-bottom: 2px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .modal-close:hover {
+            background: var(--bg-option);
+            color: var(--text-primary);
+        }
+
+        .modal-body {
+            padding: 20px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .history-item {
+            background: var(--bg-option);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 12px;
+            border: 2px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .history-item:hover {
+            border-color: var(--primary);
+            transform: translateX(5px);
+        }
+
+        .history-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 10px;
+        }
+
+        .history-title {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 0 0 5px 0;
+            font-size: 0.95rem;
+        }
+
+        .history-platform {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            background: var(--primary);
+            color: white;
+        }
+
+        .history-details {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .history-detail {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .clear-history-btn {
+            background: var(--danger);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 15px;
+            width: 100%;
+        }
+
+        .clear-history-btn:hover {
+            background: #dc2626;
+        }
+
+        .empty-history {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-secondary);
+        }
+
+        .empty-history i {
+            font-size: 4rem;
+            margin-bottom: 15px;
+            opacity: 0.3;
+        }
+
+        .card {
+            border: none;
+            border-radius: 25px;
+            box-shadow: var(--shadow);
+            background: var(--bg-card);
+            transition: all 0.3s ease;
+            animation: fadeInUp 0.5s ease;
+            overflow: hidden;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 25px 20px;
+            text-align: center;
+            border: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: pulse 3s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+        }
+
+        .card-header h1 {
+            margin: 0;
+            font-size: clamp(1.5rem, 5vw, 2.2rem);
+            font-weight: 700;
+            position: relative;
+            z-index: 1;
+        }
+
+        .card-header p {
+            margin: 8px 0 0 0;
+            opacity: 0.9;
+            font-size: clamp(0.9rem, 3vw, 1.05rem);
+            position: relative;
+            z-index: 1;
+        }
+
+        .badge-pro {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            margin-left: 8px;
+            backdrop-filter: blur(10px);
+        }
+
+        .card-body {
+            padding: clamp(20px, 5vw, 40px);
+        }
+
+        .url-input-container {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .url-input-wrapper {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .url-input {
+            border: 2px solid var(--border-color);
+            border-radius: 15px;
+            padding: 15px 50px 15px 15px;
+            font-size: clamp(0.9rem, 3vw, 1rem);
+            transition: all 0.3s ease;
+            width: 100%;
+            background: var(--bg-card);
+            color: var(--text-primary);
+        }
+
+        .url-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+            outline: none;
+        }
+
+        .input-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .paste-btn, .clear-btn-main {
+            flex: 1;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 12px 20px;
+            font-size: clamp(0.85rem, 2.5vw, 0.95rem);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .clear-btn-main {
+            background: linear-gradient(135deg, var(--danger), #dc2626);
+        }
+
+        .paste-btn:active, .clear-btn-main:active {
+            transform: scale(0.95);
+        }
+
+        .clear-icon {
+            position: absolute;
+            right: 15px;
+            top: 15px;
+            background: var(--danger);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .clear-icon:hover {
+            transform: scale(1.1);
+        }
+
+        .options-section {
+            background: var(--bg-option);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .option-group {
+            margin-bottom: 20px;
+        }
+
+        .option-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .option-label {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: clamp(0.9rem, 2.5vw, 1rem);
+        }
+
+        .option-label i {
+            color: var(--primary);
+        }
+
+        .btn-group-custom {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 10px;
+        }
+
+        .option-btn {
+            padding: 12px 16px;
+            border: 2px solid var(--border-color);
+            background: var(--bg-card);
+            color: var(--text-primary);
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: clamp(0.85rem, 2.5vw, 0.95rem);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            white-space: nowrap;
+        }
+
+        .option-btn:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .option-btn.active {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border-color: transparent;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .option-btn.audio-active {
+            background: linear-gradient(135deg, var(--warning), #d97706);
+            color: white;
+            border-color: transparent;
+        }
+
+        .download-btn {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border: none;
+            border-radius: 15px;
+            padding: 16px 40px;
+            font-size: clamp(1rem, 3vw, 1.15rem);
+            font-weight: 600;
+            color: white;
+            width: 100%;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .download-btn:active {
+            transform: scale(0.98);
+        }
+
+        .download-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .progress-container {
+            display: none;
+            margin: 25px 0;
+        }
+
+        .progress {
+            height: 35px;
+            border-radius: 15px;
+            background-color: var(--bg-option);
+            overflow: hidden;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .progress-bar {
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            transition: width 0.3s ease;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .result-container {
+            display: none;
+            margin-top: 25px;
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .result-card {
+            background: var(--bg-option);
+            border: 2px solid var(--primary);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.2);
+        }
+
+        .result-card.audio-result {
+            border-color: var(--warning);
+        }
+
+        .result-card h5 {
+            color: var(--primary);
+            font-weight: 700;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: clamp(1rem, 3vw, 1.2rem);
+        }
+
+        .result-card.audio-result h5 {
+            color: var(--warning);
+        }
+
+        .result-info {
+            margin-bottom: 20px;
+        }
+
+        .result-info p {
+            margin: 10px 0;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 10px;
+            background: var(--bg-card);
+            border-radius: 8px;
+            font-size: clamp(0.85rem, 2.5vw, 0.95rem);
+        }
+
+        .result-info strong {
+            color: var(--text-primary);
+            min-width: 90px;
+            font-weight: 700;
+        }
+
+        .result-info i {
+            color: var(--primary);
+            width: 20px;
+            margin-top: 2px;
+        }
+
+        .download-file-btn {
+            background: var(--success);
+            border: none;
+            border-radius: 12px;
+            padding: 14px 30px;
+            color: white;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            font-size: clamp(0.95rem, 2.5vw, 1.05rem);
+            width: 100%;
+            justify-content: center;
+        }
+
+        .download-file-btn:hover {
+            background: #059669;
+            transform: translateY(-2px);
+            color: white;
+        }
+
+        .error-alert {
+            border-radius: 15px;
+            border: none;
+            animation: shake 0.5s ease;
+            margin-top: 20px;
+            font-size: clamp(0.85rem, 2.5vw, 0.95rem);
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .supported-platforms {
+            text-align: center;
+            margin-top: 25px;
+            padding-top: 25px;
+            border-top: 2px solid var(--border-color);
+        }
+
+        .supported-platforms h6 {
+            color: var(--text-secondary);
+            font-weight: 600;
+            margin-bottom: 15px;
+            font-size: clamp(0.8rem, 2.5vw, 0.9rem);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .platform-icons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(50px, 1fr));
+            gap: 12px;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .platform-icon {
+            width: 100%;
+            aspect-ratio: 1;
+            border-radius: 15px;
+            background: var(--bg-card);
+            border: 2px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            font-size: clamp(1.2rem, 4vw, 1.5rem);
+            cursor: pointer;
+        }
+
+        .platform-icon:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+        }
+
+        .footer {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.9);
+            margin-top: 30px;
+            padding: 0 10px;
+        }
+
+        .footer p {
+            font-size: clamp(0.8rem, 2.5vw, 0.95rem);
+            margin: 8px 0;
+        }
+
+        .info-text {
+            font-size: clamp(0.8rem, 2.5vw, 0.85rem);
+            color: var(--text-secondary);
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            justify-content: center;
+        }
+
+        .toast-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--bg-card);
+            padding: 15px 20px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+            display: none;
+            align-items: center;
+            gap: 10px;
+            z-index: 1000;
+            animation: slideInRight 0.3s ease;
+            max-width: calc(100vw - 40px);
+        }
+
+        @keyframes slideInRight {
+            from { transform: translateX(400px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .toast-notification.success {
+            border-left: 4px solid var(--success);
+        }
+
+        .toast-notification.error {
+            border-left: 4px solid var(--danger);
+        }
+
+        .quality-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: clamp(0.8rem, 2.5vw, 0.9rem);
+            font-weight: 600;
+            background: var(--primary);
+            color: white;
+        }
+
+        .audio-badge {
+            background: var(--warning);
+        }
+
+        /* Mobile specific */
+        @media (max-width: 768px) {
+            body {
+                padding: 5px;
+            }
+
+            .main-container {
+                margin: 10px auto;
+                padding-bottom: 60px;
+            }
+
+            .header-controls {
+                flex-direction: column;
+                gap: 10px;
+                margin-bottom: 15px;
+            }
+
+            .theme-toggle, .stats-badge {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .card {
+                border-radius: 20px;
+            }
+
+            .card-header {
+                padding: 20px 15px;
+            }
+
+            .card-body {
+                padding: 20px 15px;
+            }
+
+            .btn-group-custom {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .platform-icons {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 10px;
+            }
+
+            .toast-notification {
+                top: 10px;
+                right: 10px;
+                left: 10px;
+                max-width: calc(100vw - 20px);
+            }
+
+            .result-info strong {
+                min-width: 80px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .btn-group-custom {
+                grid-template-columns: 1fr;
+            }
+
+            .input-actions {
+                flex-direction: column;
+            }
+        }
+
+        /* Accessibility */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        /* Hide scrollbar but keep functionality */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-secondary);
+        }
+    </style>
+</head>
+<body data-theme="light">
+    <!-- Toast Notification -->
+    <div class="toast-notification" id="toast">
+        <i class="fas fa-check-circle"></i>
+        <span id="toastMessage"></span>
+    </div>
+
+    <!-- History Modal -->
+    <div class="modal-overlay" id="historyModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-history"></i> Download History</h3>
+                <button class="modal-close" id="closeHistoryModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body" id="historyModalBody">
+                <div class="empty-history">
+                    <i class="fas fa-inbox"></i>
+                    <p>Loading history...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <div class="header-controls">
+            <div class="header-actions">
+                <button class="theme-toggle" id="themeToggle">
+                    <i class="fas fa-moon"></i>
+                    <span>Dark Mode</span>
+                </button>
+                <button class="history-btn" id="historyBtn">
+                    <i class="fas fa-history"></i>
+                    <span>History</span>
+                </button>
+            </div>
+            <div class="stats-badge" id="stats">
+                <i class="fas fa-download"></i> Loading...
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h1>
+                    <i class="fas fa-download"></i> Media Downloader
+                    <span class="badge-pro">PRO</span>
+                </h1>
+                <p>Download videos and audio with quality selection</p>
+            </div>
+            <div class="card-body">
+                <form id="downloadForm">
+                    <div class="url-input-container">
+                        <div class="url-input-wrapper">
+                            <div style="position: relative;">
+                                <input 
+                                    type="text" 
+                                    class="url-input" 
+                                    id="urlInput" 
+                                    placeholder="Paste your video or photo URL here..."
+                                    required
+                                    autocomplete="off"
+                                    autocapitalize="off"
+                                    spellcheck="false"
+                                >
+                                <button type="button" class="clear-icon" id="clearIcon">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                            <div class="input-actions">
+                                <button type="button" class="paste-btn" id="pasteBtn">
+                                    <i class="fas fa-paste"></i> Paste
+                                </button>
+                                <button type="button" class="clear-btn-main" id="clearBtnMain" style="display: none;">
+                                    <i class="fas fa-eraser"></i> Clear
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="options-section">
+                        <div class="option-group">
+                            <div class="option-label">
+                                <i class="fas fa-film"></i>
+                                <span>Format Type</span>
+                            </div>
+                            <div class="btn-group-custom">
+                                <button type="button" class="option-btn active" data-format="video">
+                                    <i class="fas fa-video"></i> Video
+                                </button>
+                                <button type="button" class="option-btn" data-format="audio">
+                                    <i class="fas fa-music"></i> Audio MP3
+                                </button>
+                            </div>
+                            <div class="info-text">
+                                <i class="fas fa-info-circle"></i> Audio extracts MP3 (192kbps)
+                            </div>
+                        </div>
+
+                        <div class="option-group" id="qualityGroup">
+                            <div class="option-label">
+                                <i class="fas fa-sliders-h"></i>
+                                <span>Quality</span>
+                            </div>
+                            <div class="btn-group-custom">
+                                <button type="button" class="option-btn active" data-quality="best">
+                                    <i class="fas fa-gem"></i> Best
+                                </button>
+                                <button type="button" class="option-btn" data-quality="high">
+                                    <i class="fas fa-arrow-up"></i> 1080p
+                                </button>
+                                <button type="button" class="option-btn" data-quality="medium">
+                                    <i class="fas fa-check"></i> 720p
+                                </button>
+                                <button type="button" class="option-btn" data-quality="low">
+                                    <i class="fas fa-arrow-down"></i> 480p
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="download-btn" id="downloadBtn">
+                        <i class="fas fa-download"></i> Download Media
+                    </button>
+                </form>
+
+                <div class="progress-container" id="progressContainer">
+                    <div class="progress">
+                        <div class="progress-bar" role="progressbar" id="progressBar">
+                            <span id="progressText">Downloading...</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="errorContainer"></div>
+
+                <div class="result-container" id="resultContainer">
+                    <div class="result-card" id="resultCard">
+                        <h5 id="resultTitle">
+                            <i class="fas fa-check-circle"></i> 
+                            <span>Download Complete!</span>
+                        </h5>
+                        <div class="result-info" id="resultInfo"></div>
+                        <a href="#" class="download-file-btn" id="downloadFileBtn" download>
+                            <i class="fas fa-file-download"></i> Download File
+                        </a>
+                    </div>
+                </div>
+
+                <div class="supported-platforms">
+                    <h6>Supported Platforms</h6>
+                    <div class="platform-icons">
+                        <div class="platform-icon" title="YouTube">
+                            <i class="fab fa-youtube" style="color: #FF0000;"></i>
+                        </div>
+                        <div class="platform-icon" title="TikTok">
+                            <i class="fab fa-tiktok" style="color: #000000;"></i>
+                        </div>
+                        <div class="platform-icon" title="Instagram">
+                            <i class="fab fa-instagram" style="color: #E4405F;"></i>
+                        </div>
+                        <div class="platform-icon" title="Twitter/X">
+                            <i class="fab fa-twitter" style="color: #1DA1F2;"></i>
+                        </div>
+                        <div class="platform-icon" title="Facebook">
+                            <i class="fab fa-facebook" style="color: #1877F2;"></i>
+                        </div>
+                        <div class="platform-icon" title="Vimeo">
+                            <i class="fab fa-vimeo" style="color: #1AB7EA;"></i>
+                        </div>
+                        <div class="platform-icon" title="Reddit">
+                            <i class="fab fa-reddit" style="color: #FF4500;"></i>
+                        </div>
+                        <div class="platform-icon" title="Twitch">
+                            <i class="fab fa-twitch" style="color: #9146FF;"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p><i class="fas fa-shield-alt"></i>  shanu media downloader - Private & Secure</p>
+            <p style="font-size: 0.85rem; opacity: 0.8;">Made with <i class="fas fa-heart" style="color: #ff6b6b;"></i> for personal use</p>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('downloadForm');
+        const urlInput = document.getElementById('urlInput');
+        const pasteBtn = document.getElementById('pasteBtn');
+        const clearIcon = document.getElementById('clearIcon');
+        const clearBtnMain = document.getElementById('clearBtnMain');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const progressContainer = document.getElementById('progressContainer');
+        const progressBar = document.getElementById('progressBar');
+        const progressText = document.getElementById('progressText');
+        const resultContainer = document.getElementById('resultContainer');
+        const resultCard = document.getElementById('resultCard');
+        const resultTitle = document.getElementById('resultTitle');
+        const resultInfo = document.getElementById('resultInfo');
+        const downloadFileBtn = document.getElementById('downloadFileBtn');
+        const errorContainer = document.getElementById('errorContainer');
+        const qualityGroup = document.getElementById('qualityGroup');
+        const toast = document.getElementById('toast');
+        const toastMessage = document.getElementById('toastMessage');
+        const themeToggle = document.getElementById('themeToggle');
+        const statsEl = document.getElementById('stats');
+        const historyBtn = document.getElementById('historyBtn');
+        const historyModal = document.getElementById('historyModal');
+        const closeHistoryModal = document.getElementById('closeHistoryModal');
+        const historyModalBody = document.getElementById('historyModalBody');
+
+        let selectedFormat = 'video';
+        let selectedQuality = 'best';
+        let currentTheme = localStorage.getItem('theme') || 'light';
+
+        // Initialize theme
+        document.body.setAttribute('data-theme', currentTheme);
+        updateThemeToggle();
+
+        // History Modal
+        historyBtn.addEventListener('click', async () => {
+            historyModal.classList.add('show');
+            await loadHistory();
+        });
+
+        closeHistoryModal.addEventListener('click', () => {
+            historyModal.classList.remove('show');
+        });
+
+        historyModal.addEventListener('click', (e) => {
+            if (e.target === historyModal) {
+                historyModal.classList.remove('show');
+            }
+        });
+
+        async function loadHistory() {
+            try {
+                const response = await fetch('/history');
+                const data = await response.json();
+                
+                if (data.history && data.history.length > 0) {
+                    let html = '';
+                    data.history.forEach(item => {
+                        const date = new Date(item.timestamp);
+                        const timeAgo = getTimeAgo(date);
+                        
+                        html += `
+                            <div class="history-item">
+                                <div class="history-item-header">
+                                    <div>
+                                        <h4 class="history-title">${item.title || 'Unknown'}</h4>
+                                        <span class="history-platform">${item.platform || 'Unknown'}</span>
+                                    </div>
+                                </div>
+                                <div class="history-details">
+                                    <span class="history-detail">
+                                        <i class="fas fa-clock"></i> ${timeAgo}
+                                    </span>
+                                    <span class="history-detail">
+                                        <i class="fas fa-film"></i> ${item.format || 'video'}
+                                    </span>
+                                    <span class="history-detail">
+                                        <i class="fas fa-hdd"></i> ${item.size_mb || 0} MB
+                                    </span>
+                                    ${item.duration ? `
+                                    <span class="history-detail">
+                                        <i class="fas fa-stopwatch"></i> ${formatDuration(item.duration)}
+                                    </span>
+                                    ` : ''}
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    html += `<button class="clear-history-btn" onclick="clearHistory()">
+                        <i class="fas fa-trash"></i> Clear All History
+                    </button>`;
+                    
+                    historyModalBody.innerHTML = html;
+                } else {
+                    historyModalBody.innerHTML = `
+                        <div class="empty-history">
+                            <i class="fas fa-inbox"></i>
+                            <p>No download history yet</p>
+                        </div>
+                    `;
+                }
+            } catch (err) {
+                console.error('Error loading history:', err);
+                historyModalBody.innerHTML = `
+                    <div class="empty-history">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <p>Failed to load history</p>
+                    </div>
+                `;
+            }
+        }
+
+        async function clearHistory() {
+            if (confirm('Are you sure you want to clear all download history?')) {
+                try {
+                    await fetch('/history', { method: 'DELETE' });
+                    showToast('History cleared successfully!', 'success');
+                    await loadHistory();
+                    loadStats();
+                } catch (err) {
+                    showToast('Failed to clear history', 'error');
+                }
+            }
+        }
+
+        function getTimeAgo(date) {
+            const seconds = Math.floor((new Date() - date) / 1000);
+            
+            if (seconds < 60) return 'Just now';
+            const minutes = Math.floor(seconds / 60);
+            if (minutes < 60) return `${minutes}m ago`;
+            const hours = Math.floor(minutes / 60);
+            if (hours < 24) return `${hours}h ago`;
+            const days = Math.floor(hours / 24);
+            if (days < 30) return `${days}d ago`;
+            const months = Math.floor(days / 30);
+            return `${months}mo ago`;
+        }
+
+        function formatDuration(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            return `${mins}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        // Theme toggle
+        themeToggle.addEventListener('click', () => {
+            currentTheme = currentTheme === 'light' ? 'dark' : 'light';
+            document.body.setAttribute('data-theme', currentTheme);
+            localStorage.setItem('theme', currentTheme);
+            updateThemeToggle();
+            showToast(`${currentTheme === 'dark' ? 'Dark' : 'Light'} mode activated!`, 'success');
+        });
+
+        function updateThemeToggle() {
+            const icon = themeToggle.querySelector('i');
+            const text = themeToggle.querySelector('span');
+            if (currentTheme === 'dark') {
+                icon.className = 'fas fa-sun';
+                text.textContent = 'Light Mode';
+            } else {
+                icon.className = 'fas fa-moon';
+                text.textContent = 'Dark Mode';
+            }
+        }
+
+        // Load stats
+        async function loadStats() {
+            try {
+                const response = await fetch('/stats');
+                const data = await response.json();
+                statsEl.innerHTML = `<i class="fas fa-download"></i> ${data.total_downloads} files | ${data.total_size_mb} MB`;
+            } catch (err) {
+                statsEl.innerHTML = `<i class="fas fa-download"></i> Stats unavailable`;
+            }
+        }
+        loadStats();
+
+        // Paste button
+        pasteBtn.addEventListener('click', async () => {
+            try {
+                const text = await navigator.clipboard.readText();
+                urlInput.value = text;
+                urlInput.focus();
+                showToast('URL pasted from clipboard!', 'success');
+                updateClearButtons();
+            } catch (err) {
+                showToast('Failed to read clipboard. Please paste manually.', 'error');
+            }
+        });
+
+        // Clear buttons
+        function updateClearButtons() {
+            const hasValue = urlInput.value.trim().length > 0;
+            clearIcon.style.display = hasValue ? 'flex' : 'none';
+            clearBtnMain.style.display = hasValue ? 'flex' : 'none';
+        }
+
+        clearIcon.addEventListener('click', clearInput);
+        clearBtnMain.addEventListener('click', clearInput);
+
+        function clearInput() {
+            urlInput.value = '';
+            urlInput.focus();
+            updateClearButtons();
+            resultContainer.style.display = 'none';
+            hideError();
+        }
+
+        urlInput.addEventListener('input', () => {
+            updateClearButtons();
+            resultContainer.style.display = 'none';
+            hideError();
+        });
+
+        // Toast notification
+        function showToast(message, type = 'success') {
+            toast.className = `toast-notification ${type}`;
+            toastMessage.textContent = message;
+            toast.style.display = 'flex';
+            
+            const icon = toast.querySelector('i');
+            icon.className = type === 'success' ? 'fas fa-check-circle' : 'fas fa-exclamation-circle';
+            icon.style.color = type === 'success' ? 'var(--success)' : 'var(--danger)';
+            
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 3000);
+        }
+
+        // Format selection
+        document.querySelectorAll('[data-format]').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('[data-format]').forEach(b => {
+                    b.classList.remove('active', 'audio-active');
+                });
+                this.classList.add(this.dataset.format === 'audio' ? 'audio-active' : 'active');
+                selectedFormat = this.dataset.format;
+                
+                qualityGroup.style.display = selectedFormat === 'audio' ? 'none' : 'block';
+            });
+        });
+
+        // Quality selection
+        document.querySelectorAll('[data-quality]').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('[data-quality]').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                selectedQuality = this.dataset.quality;
+            });
+        });
+
+        // Form submission
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const url = urlInput.value.trim();
+            
+            if (!url) {
+                showError('Please enter a valid URL');
+                return;
+            }
+
+            if (!url.startsWith('http://') && !url.startsWith('https://')) {
+                showError('URL must start with http:// or https://');
+                return;
+            }
+
+            hideError();
+            resultContainer.style.display = 'none';
+            progressContainer.style.display = 'block';
+            downloadBtn.disabled = true;
+            downloadBtn.innerHTML = '<span class="spinner"></span> Downloading...';
+            
+            let progress = 0;
+            const progressInterval = setInterval(() => {
+                if (progress < 90) {
+                    progress += Math.random() * 10;
+                    progressBar.style.width = Math.min(progress, 90) + '%';
+                    progressText.textContent = 'Downloading... ' + Math.floor(Math.min(progress, 90)) + '%';
+                }
+            }, 500);
+
+            try {
+                const formData = new FormData();
+                formData.append('url', url);
+                formData.append('quality', selectedQuality);
+                formData.append('format_type', selectedFormat);
+
+                const response = await fetch('/download', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                clearInterval(progressInterval);
+                progressBar.style.width = '100%';
+                progressText.textContent = 'Complete! 100%';
+
+                if (response.ok && data.success) {
+                    setTimeout(() => {
+                        showResult(data);
+                        loadStats();
+                    }, 500);
+                } else {
+                    throw new Error(data.detail || 'Download failed');
+                }
+            } catch (error) {
+                clearInterval(progressInterval);
+                progressContainer.style.display = 'none';
+                showError(error.message || 'An error occurred during download');
+                showToast('Download failed!', 'error');
+            } finally {
+                downloadBtn.disabled = false;
+                downloadBtn.innerHTML = '<i class="fas fa-download"></i> Download Media';
+            }
+        });
+
+        function showResult(data) {
+            progressContainer.style.display = 'none';
+            resultContainer.style.display = 'block';
+
+            const metadata = data.metadata || {};
+            const isAudio = metadata.format_type === 'audio';
+            
+            if (isAudio) {
+                resultCard.classList.add('audio-result');
+                resultTitle.innerHTML = '<i class="fas fa-music"></i> <span>Audio Download Complete!</span>';
+            } else {
+                resultCard.classList.remove('audio-result');
+                resultTitle.innerHTML = '<i class="fas fa-check-circle"></i> <span>Video Download Complete!</span>';
+            }
+            
+            let infoHTML = `
+                <p>
+                    <i class="fas fa-heading"></i>
+                    <strong>Title:</strong> 
+                    <span>${metadata.title || 'Unknown'}</span>
+                </p>
+                <p>
+                    <i class="fas fa-user"></i>
+                    <strong>Uploader:</strong> 
+                    <span>${metadata.uploader || 'Unknown'}</span>
+                </p>
+            `;
+
+            if (metadata.duration) {
+                const minutes = Math.floor(metadata.duration / 60);
+                const seconds = metadata.duration % 60;
+                infoHTML += `
+                    <p>
+                        <i class="fas fa-clock"></i>
+                        <strong>Duration:</strong> 
+                        <span>${minutes}:${seconds.toString().padStart(2, '0')}</span>
+                    </p>
+                `;
+            }
+
+            if (metadata.quality) {
+                infoHTML += `
+                    <p>
+                        <i class="fas fa-star"></i>
+                        <strong>Quality:</strong> 
+                        <span class="${isAudio ? 'audio-badge' : 'quality-badge'}">${metadata.quality}</span>
+                    </p>
+                `;
+            }
+
+            if (metadata.filesize) {
+                const sizeMB = (metadata.filesize / (1024 * 1024)).toFixed(2);
+                infoHTML += `
+                    <p>
+                        <i class="fas fa-hdd"></i>
+                        <strong>Size:</strong> 
+                        <span>${sizeMB} MB</span>
+                    </p>
+                `;
+            }
+
+            infoHTML += `
+                <p>
+                    <i class="fas fa-file"></i>
+                    <strong>Filename:</strong> 
+                    <span style="word-break: break-all; font-size: 0.85rem;">${data.filename}</span>
+                </p>
+            `;
+
+            resultInfo.innerHTML = infoHTML;
+            downloadFileBtn.href = data.download_url;
+            downloadFileBtn.download = data.filename;
+            
+            showToast('Download complete! Click to save file.', 'success');
+            resultContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        function showError(message) {
+            errorContainer.innerHTML = `
+                <div class="alert alert-danger error-alert" role="alert">
+                    <i class="fas fa-exclamation-circle"></i> <strong>Error:</strong> ${message}
+                </div>
+            `;
+        }
+
+        function hideError() {
+            errorContainer.innerHTML = '';
+        }
+
+        // Platform icon tooltips
+        document.querySelectorAll('.platform-icon').forEach(icon => {
+            icon.addEventListener('click', function() {
+                const platform = this.getAttribute('title');
+                showToast(`Supports ${platform}`, 'success');
+            });
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'v' && document.activeElement !== urlInput) {
+                e.preventDefault();
+                pasteBtn.click();
+            }
+            
+            if (e.key === 'Escape' && urlInput.value) {
+                clearInput();
+            }
+        });
+
+        // Auto-focus
+        window.addEventListener('load', () => {
+            urlInput.focus();
+        });
+    </script>
+</body>
+</html>
