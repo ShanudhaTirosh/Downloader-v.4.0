@@ -210,6 +210,11 @@ async def home(request: Request):
     """Serve the main page"""
     return templates.TemplateResponse(request=request, name="index.html")
 
+@app.get("/favicon.ico", include_in_schema=False)
+@app.get("/favicon.png", include_in_schema=False)
+async def favicon():
+    return FileResponse("favicon.png")
+
 @app.get("/health")
 async def health_check():
     """Enhanced health check endpoint"""
