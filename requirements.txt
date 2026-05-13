@@ -3,3 +3,5 @@ uvicorn
 yt-dlp
 jinja2
 python-dotenv
+gunicorn
+uvicorn
