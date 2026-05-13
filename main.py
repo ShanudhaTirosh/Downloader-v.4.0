@@ -46,7 +46,7 @@ logger.setLevel(logging.INFO)
 # Initialize FastAPI app
 app = FastAPI(
     title="Social Media Downloader Pro",
-    version="4.0.0",
+    version="5.0.0",
     description="Professional media downloader with advanced features",
     docs_url=None,  # Disable docs in production
     redoc_url=None
@@ -67,7 +67,7 @@ DOWNLOAD_FOLDER = os.getenv("DOWNLOAD_FOLDER", "downloads")
 HISTORY_FILE = os.path.join(DOWNLOAD_FOLDER, ".history.json")
 MAX_FILE_AGE_DAYS = int(os.getenv("MAX_FILE_AGE_DAYS", "1"))
 MAX_HISTORY_ITEMS = int(os.getenv("MAX_HISTORY_ITEMS", "100"))
-PORT = int(os.getenv("PORT", "8000"))
+PORT = int(os.getenv("PORT", "9000"))
 
 # Create necessary directories
 Path(DOWNLOAD_FOLDER).mkdir(exist_ok=True)
@@ -208,7 +208,7 @@ async def startup_event():
 @app.get("/", response_class=HTMLResponse)
 async def home(request: Request):
     """Serve the main page"""
-    return templates.TemplateResponse("index.html", {"request": request})
+    return templates.TemplateResponse(request=request, name="index.html")
 
 @app.get("/health")
 async def health_check():
