@@ -160,11 +160,16 @@ def get_format_string(quality: str, format_type: str) -> str:
 def get_common_headers():
     """Get common headers to avoid bot detection"""
     return {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36',
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-        'Accept-Language': 'en-us,en;q=0.5',
-        'Accept-Encoding': 'gzip,deflate',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
+        'Accept-Language': 'en-US,en;q=0.9',
+        'Accept-Encoding': 'gzip, deflate, br',
         'Connection': 'keep-alive',
+        'Upgrade-Insecure-Requests': '1',
+        'Sec-Fetch-Dest': 'document',
+        'Sec-Fetch-Mode': 'navigate',
+        'Sec-Fetch-Site': 'none',
+        'Sec-Fetch-User': '?1',
     }
 
 def get_platform_from_url(url: str) -> str:
@@ -327,7 +332,7 @@ async def download_media(
         'ignoreerrors': False,
         'quiet': False,
         'no_color': True,
-        'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+        'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
         'referer': 'https://www.google.com/',
         'http_headers': get_common_headers(),
         'extractor_retries': 5,
@@ -337,8 +342,14 @@ async def download_media(
         'age_limit': None,
         'youtube_include_dash_manifest': True,
         'youtube_include_hls_manifest': True,
-        'cookiefile': 'cookies.txt',
     }
+    
+    # Use cookies if available
+    if os.path.exists('cookies.txt'):
+        ydl_opts['cookiefile'] = 'cookies.txt'
+        logger.info("🍪 Using cookies.txt for authentication")
+    else:
+        logger.warning("⚠️  cookies.txt not found. YouTube downloads might fail on VPS.")
     
     # Add format-specific options
     if format_type == "audio":
@@ -440,6 +451,13 @@ async def download_media(
     except yt_dlp.utils.DownloadError as e:
         error_msg = str(e)
         logger.error(f"❌ Download error: {error_msg}")
+        
+        # Specific help for YouTube bot detection
+        if "Sign in to confirm you’re not a bot" in error_msg or "confirm you are not a bot" in error_msg.lower():
+            hint = "YouTube blocked this request. Since you are on a VPS (AWS), you MUST upload a FRESH cookies.txt file."
+            logger.error(f"💡 Hint: {hint}")
+            error_msg = f"{error_msg}. {hint}"
+            
         logger.error("=" * 80)
         raise HTTPException(status_code=400, detail=f"Download failed: {error_msg}")
     except Exception as e:
